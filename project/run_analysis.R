@@ -12,40 +12,32 @@ subjectTest<-read.csv("test/subject_test.txt",header=FALSE,col.names="Subject")
 testY<-read.csv("test/y_test.txt",header=FALSE,col.names="Activity")
 testX<-read.csv("test/X_test.txt",sep="",header=FALSE)
 #names(testSet)<-c("Subject","Activity")
-#Substitute Activity Names - Do this programatically if I have time
-testY$Activity[testY$Activity==1]<-"WALKING"
-testY$Activity[testY$Activity==2]<-"WALKING_UPSTAIRS"
-testY$Activity[testY$Activity==3]<-"WALING_DOWNSTAIRS"
-testY$Activity[testY$Activity==4]<-"SITTING"
-testY$Activity[testY$Activity==5]<-"STANDING"
-testY$Activity[testY$Activity==6]<-"LAYING"
 
 #Combine into one test set
 testSet<-data.frame(subjectTest$Subject,testY$Activity,testX)
 featureNames<-as.vector(features$Feature)
 names(testSet)<-c("Subject","Activity",featureNames)
+testAgg<-(aggregate(testSet,by=list(testSet$Subject,testSet$Activity),FUN=mean))
 
 #Read in Training Data
 subjectTrain<-read.csv("train/subject_train.txt",header=FALSE,col.names="Subject")
 trainY<-read.csv("train/y_train.txt",header=FALSE,col.names="Activity")
 trainX<-read.csv("train/X_train.txt",sep="",header=FALSE)
 
-#Substitute Activity Names - Do this programatically if I have time
-trainY$Activity[trainY$Activity==1]<-"WALKING"
-trainY$Activity[trainY$Activity==2]<-"WALKING_UPSTAIRS"
-trainY$Activity[trainY$Activity==3]<-"WALING_DOWNSTAIRS"
-trainY$Activity[trainY$Activity==4]<-"SITTING"
-trainY$Activity[trainY$Activity==5]<-"STANDING"
-trainY$Activity[trainY$Activity==6]<-"LAYING"
-
 #Combine into one train set
 trainSet<-data.frame(subjectTrain$Subject,trainY$Activity,trainX)
 names(trainSet)<-c("Subject","Activity",featureNames)
+trainAgg<-(aggregate(trainSet,by=list(trainSet$Subject,trainSet$Activity),FUN=mean))
 
 #Combine training and test
 dataSet<-rbind(trainSet,testSet)
 #subjectSet<-rbind(subjectTest,subjectTrain)
-
+dataSet$Activity[testY$Activity==1]<-"WALKING"
+dataSet$Activity[testY$Activity==2]<-"WALKING_UPSTAIRS"
+dataSet$Activity[testY$Activity==3]<-"WALKING_DOWNSTAIRS"
+dataSet$Activity[testY$Activity==4]<-"SITTING"
+dataSet$Activity[testY$Activity==5]<-"STANDING"
+dataSet$Activity[testY$Activity==6]<-"LAYING"
 # Subset the "mean" cols
 fnd<-as.data.frame(featureNames)
 fnd$fnd1<-as.vector(fnd$featureNames)
@@ -71,10 +63,15 @@ dataSet.final<-cbind(dataSet.mean,stdSubset)
 names(dataSet.final)[names(dataSet.final)=="dataSet$Subject"]<-"Subject"
 names(dataSet.final)[names(dataSet.final)=="dataSet$Activity"]<-"Activity"
 write.csv(dataSet.final,file="dataSet.final.csv")
-#subset to calculate means
-drops <- c("Subject","Activity")
-ds.calc<-dataSet.final[,!(names(dataSet.final) %in% drops)]
-dataSet.final<-cbind(dataSet.final,rowMeans(ds.calc))
-dataSet.final<-rbind(dataSet.final,as.numeric(colMeans(ds.calc)))
-names(dataSet.final)[names(dataSet.final)=="rowMeans(ds.calc"]<-"Means"
-
+#Combine subject means
+sMeans<-rbind(testAgg,trainAgg)
+drops <- c("Group.1","Group.2")
+sMeans<-sMeans[,!(names(sMeans) %in% drops)]
+osm<-sMeans[with(sMeans, order(Subject, Activity)), ]
+osm$Activity[osm$Activity==1]<-"WALKING"
+osm$Activity[osm$Activity==2]<-"WALKING_UPSTAIRS"
+osm$Activity[osm$Activity==3]<-"WALKING_DOWNSTAIRS"
+osm$Activity[osm$Activity==4]<-"SITTING"
+osm$Activity[osm$Activity==5]<-"STANDING"
+osm$Activity[osm$Activity==6]<-"LAYING"
+write.csv(osm,file="tidy2.csv")
