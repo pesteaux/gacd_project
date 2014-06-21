@@ -70,8 +70,11 @@ stdSubset<-subset(dataSet,select=stdVa)
 dataSet.final<-cbind(dataSet.mean,stdSubset)
 names(dataSet.final)[names(dataSet.final)=="dataSet$Subject"]<-"Subject"
 names(dataSet.final)[names(dataSet.final)=="dataSet$Activity"]<-"Activity"
+write.csv(dataSet.final,file="dataSet.final.csv")
 #subset to calculate means
 drops <- c("Subject","Activity")
 ds.calc<-dataSet.final[,!(names(dataSet.final) %in% drops)]
 dataSet.final<-cbind(dataSet.final,rowMeans(ds.calc))
 dataSet.final<-rbind(dataSet.final,as.numeric(colMeans(ds.calc)))
+names(dataSet.final)[names(dataSet.final)=="rowMeans(ds.calc"]<-"Means"
+
