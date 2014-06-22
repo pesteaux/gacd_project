@@ -15,8 +15,10 @@ Comments are provided in the script which explain each of the steps, in summary:
   
   The script then moves into the train directory and reads the list of subjects, the X_train and y_train files into
   individual data frames. The X_train are the observations for each of the parameters in features.txt. The y_train file
-  is the number-coded activities list. The script somewhat non-programatically replaces the numbers with the names
-  provided in activity_labels.txt. These data frames are then combined into a complete training set data frame.
+  is the number-coded activities list.  These data frames are then combined into a complete training set data frame.
+  
+  A separate data frame is kept for each of the sets which includes aggregate data. These sets are combined for the final
+  submitted data set.
   
   The same process is then repeated for the test data. The final test and train data frames are then combined to form
   a final dataset. The final data set represents tidy data in that each row is a single observation and each measured
